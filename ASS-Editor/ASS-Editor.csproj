@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>ASS_Editor</RootNamespace>
+		<ImplicitUsings>enable</ImplicitUsings>
+		 <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="ImGui.NET" Version="1.91.6.1" />
+		<PackageReference Include="Raylib-cs" Version="7.0.0" />
+	</ItemGroup>
+</Project>

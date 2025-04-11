@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ASS_Editor.Documents;
 
-public class Inspector : Document
+public class Explorer : Document
 {
     public override void Dispose()
     {
@@ -22,10 +22,10 @@ public class Inspector : Document
 
     public override void Render()
     {
-        if (ImGui.Begin("Inspector", ref IsVisible))
+        if (ImGui.Begin("Explorer", ref IsVisible))
         {
             IsFocused = CatGui.IsFocused();
-            ImGui.Text("you suck");
+            ImGui.Text("you DONT suck");
 
             CatGui.DrawDebug();
         }

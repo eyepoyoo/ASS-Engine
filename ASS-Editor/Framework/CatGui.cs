@@ -16,5 +16,18 @@ namespace ASS_Editor.Framework
             if (space > 0)
                 ImGui.Dummy(new Vector2(0, space));
         }
+        public static bool IsFocused() =>
+            ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows);
+
+        public static void DrawDebug()
+        {
+            if (Program.Debug)
+            {
+                CatGui.SkipBody();
+
+                Vector2 winSize = ImGui.GetWindowSize();
+                ImGui.Text($"Size: {winSize.X} x {winSize.Y}");
+            }
+        }
     }
 }

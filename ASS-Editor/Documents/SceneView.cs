@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ASS_Editor.Documents;
 
-public class Scene : Document
+public class SceneView : Document
 {
     private Camera2D SceneCam;
     private Texture2D bob;
@@ -33,20 +33,17 @@ public class Scene : Document
 
     public override void Render()
     {
-        if (ImGui.Begin(FriendlyName, ref IsVisible, ImGuiWindowFlags.NoScrollbar)) 
+        if (ImGui.Begin(FriendlyName, ref IsVisible, ImGuiWindowFlags.NoScrollbar))
         {
             IsFocused = CatGui.IsFocused();
             rlImGui.ImageRenderTextureFit(ViewTex, true);
 
-            Vector2 textPos = new Vector2(30, 30);
-            ImGui.SetCursorPos(textPos);
-            ImGui.Text($"[DEBUG] target: {SceneCam.Target}");
+            Vector2 overlayPos = ImGui.GetItemRectMin() + new Vector2(30, 30);
+            ImDrawListPtr drawList = ImGui.GetWindowDrawList();
 
-            textPos.Y += 15;
-            ImGui.SetCursorPos(textPos);
-            ImGui.Text($"[DEBUG] zoom: {SceneCam.Zoom}");
+            drawList.AddText(overlayPos, ImGui.GetColorU32(ImGuiCol.Text), $"[DEBUG] cam targ: {SceneCam.Target}");
+            drawList.AddText(overlayPos + new Vector2(0,15), ImGui.GetColorU32(ImGuiCol.Text), $"[DEBUG] cam zoom: {SceneCam.Zoom}"); //i will not kms i will not kms i will not kms
         }
-
         ImGui.End();
     }
 
@@ -75,8 +72,10 @@ public class Scene : Document
 
         Raylib.BeginTextureMode(ViewTex);
         Raylib.ClearBackground(Color.SkyBlue);
+
         Raylib.BeginMode2D(SceneCam);
         Raylib.DrawTextureEx(bob, new Vector2(0,0),0, 1, Color.White);
+
         Raylib.EndMode2D();
         Raylib.EndTextureMode();
     }

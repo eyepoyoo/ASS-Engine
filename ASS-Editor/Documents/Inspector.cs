@@ -17,7 +17,7 @@ public class Inspector : Document
 
     public override void Init()
     {
-        FriendlyName = "Explorer";
+        FriendlyName = "Inspector";
     }
 
     public override void Render()

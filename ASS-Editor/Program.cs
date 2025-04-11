@@ -3,6 +3,7 @@ using ASS_Editor.Framework;
 using ImGuiNET;
 using Raylib_cs;
 using rlImGui_cs;
+using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 
@@ -39,7 +40,7 @@ internal class Program
             style.Colors[(int)ImGuiCol.WindowBg].W = 1.0f;
         }
 
-        RegisterDocument(new Explorer(), new Inspector());//god damn these half japanese girls, do it to me everytime of the Oh, the redhead said you shred the cello
+        RegisterDocument(new Explorer(), new Inspector(), new Scene());//god damn these half japanese girls, do it to me everytime of the Oh, the redhead said you shred the cello
 //        And I'm jello, baby
 //But you won't talk, won't look, won't think of me
 //I'm the epitome of public enemy
@@ -48,6 +49,11 @@ internal class Program
 
         while (!Raylib.WindowShouldClose() && !Quit)
         {
+            foreach (var doc in OpenDocuments)
+            {
+                doc.Update();
+            }
+
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Color.Black);
 

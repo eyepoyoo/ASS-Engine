@@ -6,28 +6,27 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ASS_Editor.Framework
+namespace ASS_Editor.Framework;
+
+public static class CatGui
 {
-    public static class CatGui
+    public static void SkipBody()
     {
-        public static void SkipBody()
-        {
-            float space = ImGui.GetContentRegionAvail().Y - ImGui.GetTextLineHeightWithSpacing();
-            if (space > 0)
-                ImGui.Dummy(new Vector2(0, space));
-        }
-        public static bool IsFocused() =>
-            ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows);
+        float space = ImGui.GetContentRegionAvail().Y - ImGui.GetTextLineHeightWithSpacing();
+        if (space > 0)
+            ImGui.Dummy(new Vector2(0, space));
+    }
+    public static bool IsFocused() =>
+        ImGui.IsWindowFocused(ImGuiFocusedFlags.RootAndChildWindows);
 
-        public static void DrawDebug()
+    public static void DrawDebug()
+    {
+        if (Program.Debug)
         {
-            if (Program.Debug)
-            {
-                CatGui.SkipBody();
+            SkipBody();
 
-                Vector2 winSize = ImGui.GetWindowSize();
-                ImGui.Text($"Size: {winSize.X} x {winSize.Y}");
-            }
+            Vector2 winSize = ImGui.GetWindowSize();
+            ImGui.Text($"Size: {winSize.X} x {winSize.Y}");
         }
     }
 }

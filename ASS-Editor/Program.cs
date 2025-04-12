@@ -25,6 +25,7 @@ internal class Program
     private static List<Document> OpenDocuments = new();
     private static List<Document> TotalDocuments = new();
 
+    private static List<string> Workspaces = new();
     static void Main(string[] args)
     {
         if (!File.Exists("imgui.ini"))
@@ -92,7 +93,8 @@ internal class Program
             }
         }
 
-        START:
+        Workspaces = GetWorkspaceDefaults();
+
         while (!Raylib.WindowShouldClose() && !Quit)
         {
             foreach (var doc in OpenDocuments)
@@ -124,7 +126,6 @@ internal class Program
             docNames.Add(doc.FriendlyName);
         }
 
-        File.WriteAllText("uiworkspace.uwc", JsonConvert.SerializeObject(docNames, Formatting.None));
         rlImGui.Shutdown();
         foreach (var doc in OpenDocuments)
         {
@@ -179,15 +180,38 @@ internal class Program
 
             if (ImGui.BeginMenu("Window"))
             {
+                //if (ImGui.BeginMenu("Workspaces"))
+                //{
+                //    if (Workspaces != null)
+                //    {
+                //        if (Workspaces == null)
+                //        {
+                //            ImGui.Text("Workspaces not found");
+                //        } else
+                //        {
+                //            foreach (var workspace in Workspaces)
+                //            {
+                //                if (ImGui.MenuItem(workspace))
+                //                {
+                //                    ImGui.LoadIniSettingsFromDisk(workspace);
+                //                }
+                //            }
+                //        }
+                //    }
+                //    ImGui.EndMenu();
+                //}
+
                 foreach (var doc in TotalDocuments)
                 {
                     ImGui.MenuItem(doc.FriendlyName, string.Empty, ref doc.IsVisible);
                     if (doc.IsVisible && !OpenDocuments.Contains(doc))
                     {
                         OpenDocuments.Add(doc);
+                        SaveWorkspace();
                     } else if (!doc.IsVisible && OpenDocuments.Contains(doc))
                     {
                         OpenDocuments.Remove(doc);
+                        SaveWorkspace();
                     }
                 }
 
@@ -199,8 +223,26 @@ internal class Program
         }
     }
 
-    private static void SetupDefaultDockingLayout()
+    private static List<string> GetWorkspaceDefaults()
     {
+        List<string> foundWorkspaces;
+        if (Directory.Exists("workspaces"))
+        {
+            foundWorkspaces = Directory.GetFiles("workspaces").ToList();
+            return foundWorkspaces;
+        }
+
+        return null;
     }
 
+    private static void SaveWorkspace()
+    {
+        List<string> docNames = new();
+        foreach (var doc in OpenDocuments)
+        {
+            docNames.Add(doc.FriendlyName);
+        }
+
+        File.WriteAllText("uiworkspace.uwc", JsonConvert.SerializeObject(docNames, Formatting.None));
+    }
 }

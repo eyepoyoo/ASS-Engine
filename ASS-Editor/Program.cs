@@ -40,7 +40,7 @@ internal class Program
 
         rlImGui.Setup(true, true);
         ImGui.GetIO().ConfigWindowsMoveFromTitleBarOnly = true;
-
+        ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
         var style = ImGui.GetStyle();
         if ((ImGui.GetIO().ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
         {
@@ -50,7 +50,12 @@ internal class Program
 
         if (loaddefaultlayout)
         {
-            ImGui.LoadIniSettingsFromDisk("workspaces/default.ini");
+            if (File.Exists("workspaces/default.uwc"))
+                File.Copy("workspaces/default.uwc", "uiworkspace.uwc");
+
+            if (File.Exists("workspaces/default.ini"))
+                ImGui.LoadIniSettingsFromDisk("workspaces/default.ini");
+
             loaddefaultlayout = false;
         }
 

@@ -29,4 +29,12 @@ public static class CatGui
             ImGui.Text($"Size: {winSize.X} x {winSize.Y}");
         }
     }
+
+    public static void DrawTooltip(string tooltip = "meow", ImGuiHoveredFlags flag = ImGuiHoveredFlags.AllowWhenDisabled)
+    {
+        if (ImGui.IsItemHovered(flag))
+        {
+            ImGui.SetItemTooltip(tooltip);
+        }
+    }
 }

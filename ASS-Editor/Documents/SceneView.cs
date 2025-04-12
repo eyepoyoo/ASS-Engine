@@ -14,7 +14,19 @@ namespace ASS_Editor.Documents;
 public class SceneView : Document
 {
     private Camera2D SceneCam;
+    private Image rlBob;
     private Texture2D bob;
+    private bool openBobContextMenu = false;
+
+    private Rectangle sourceRect;
+    private Rectangle destRect;
+
+    private void refBob()
+    {
+        bob = Raylib.LoadTextureFromImage(rlBob);
+        sourceRect = new Rectangle(0, 0, bob.Width, bob.Height);
+        destRect = new Rectangle(0, 0, bob.Width, bob.Height);
+    }
 
     public override void Dispose()
     {
@@ -25,7 +37,8 @@ public class SceneView : Document
     {
         FriendlyName = "Scene View";
         ViewTex = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
-        bob = Raylib.LoadTexture("bob.png");
+        rlBob = Raylib.LoadImage("assets/bob.png");
+        refBob();
 
         SceneCam = new Camera2D();
         SceneCam.Zoom = 0.1f;
@@ -43,9 +56,35 @@ public class SceneView : Document
 
             drawList.AddText(overlayPos, ImGui.GetColorU32(ImGuiCol.Text), $"[DEBUG] cam targ: {SceneCam.Target}");
             drawList.AddText(overlayPos + new Vector2(0,15), ImGui.GetColorU32(ImGuiCol.Text), $"[DEBUG] cam zoom: {SceneCam.Zoom}"); //i will not kms i will not kms i will not kms
+
+            if (openBobContextMenu)
+            {
+                ImGui.OpenPopup("BobContextMenu");
+                openBobContextMenu = false;
+            }
+
+            if (ImGui.BeginPopup("BobContextMenu"))
+            {
+                if (ImGui.MenuItem("Pet Bob"))
+                {
+                    Console.WriteLine("Bob is happy :)");
+                    Raylib.UnloadTexture(bob);
+                    bob = Raylib.LoadTexture("assets/bob_happy.png");
+                }
+                if (ImGui.MenuItem("Yell at Bob"))
+                {
+                    Console.WriteLine("Bob is sad :(");
+                    Raylib.UnloadTexture(bob);
+                    bob = Raylib.LoadTexture("assets/bob_mad.png");
+                }
+                ImGui.EndPopup();
+            }
+
         }
         ImGui.End();
     }
+
+    public bool debugMode = true;
 
     public override void Update()
     {
@@ -55,7 +94,7 @@ public class SceneView : Document
             ViewTex = Raylib.LoadRenderTexture(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
         }
 
-
+        if (!IsFocused) return;
         if (Raylib.IsKeyDown(KeyboardKey.W))
             SceneCam.Target -= Vector2.UnitY;
         if (Raylib.IsKeyDown(KeyboardKey.S))
@@ -74,9 +113,25 @@ public class SceneView : Document
         Raylib.ClearBackground(Color.SkyBlue);
 
         Raylib.BeginMode2D(SceneCam);
-        Raylib.DrawTextureEx(bob, new Vector2(0,0),0, 1, Color.White);
+        Raylib.DrawTexturePro(bob, sourceRect, destRect, Vector2.Zero, 0, Color.White);
+        if (Raylib.IsMouseButtonPressed(MouseButton.Right))
+        {
+            Vector2 mousePosScreen = Raylib.GetMousePosition();
+
+            Vector2 mousePosWorld = Raylib.GetScreenToWorld2D(mousePosScreen, SceneCam);
+
+            // Check if world-space mouse is within the destination rectangle
+            Rectangle clickBounds = new Rectangle(destRect.X, destRect.Y, destRect.Width, destRect.Height);
+
+            if (Raylib.CheckCollisionPointRec(mousePosWorld, clickBounds))
+            {
+                openBobContextMenu = true;
+            }
+        }
+
 
         Raylib.EndMode2D();
         Raylib.EndTextureMode();
     }
+
 }

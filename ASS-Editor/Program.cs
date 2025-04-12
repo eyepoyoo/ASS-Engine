@@ -1,6 +1,7 @@
 ﻿using ASS_Editor.Documents;
 using ASS_Editor.Framework;
 using ImGuiNET;
+using Newtonsoft.Json;
 using Raylib_cs;
 using rlImGui_cs;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ internal class Program
 {
     private static bool Quit;
     public static bool Debug;
-
+    private static bool loaddefaultlayout;
 
     private static float MenuBarHeight;
     private static readonly ImGuiWindowFlags WndowFlags = ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
@@ -22,9 +23,15 @@ internal class Program
                   ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoBackground;
 
     private static List<Document> OpenDocuments = new();
+    private static List<Document> TotalDocuments = new();
 
     static void Main(string[] args)
     {
+        if (!File.Exists("imgui.ini"))
+        {
+            Console.WriteLine("first run");
+            loaddefaultlayout = true;
+        }
 
         Raylib.SetConfigFlags(ConfigFlags.Msaa4xHint | ConfigFlags.VSyncHint | ConfigFlags.ResizableWindow);
         Raylib.InitWindow(1280, 800, "ASS Editor");
@@ -40,13 +47,52 @@ internal class Program
             style.Colors[(int)ImGuiCol.WindowBg].W = 1.0f;
         }
 
-        RegisterDocument(new Explorer(), new Inspector(), new SceneView());//god damn these half japanese girls, do it to me everytime of the Oh, the redhead said you shred the cello
-//        And I'm jello, baby
-//But you won't talk, won't look, won't think of me
-//I'm the epitome of public enemy
-//Why you wanna go and do me like that ?
-//Come down on the street and dance with me
+        if (loaddefaultlayout)
+        {
+            ImGui.LoadIniSettingsFromDisk("workspaces/default.ini");
+            loaddefaultlayout = false;
+        }
 
+        RegisterDocument(new Explorer(), new Inspector(), new SceneView());
+
+        if (File.Exists("uiworkspace.uwc"))
+        {
+            string json = File.ReadAllText("uiworkspace.uwc");
+
+            List<string>? nameofthedocs = JsonConvert.DeserializeObject<List<string>>(json, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                Error = delegate (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args)
+                {
+                    args.ErrorContext.Handled = true;
+                },
+            });
+
+
+            if (nameofthedocs != null)
+            {
+                //NOT good code
+                foreach (var item in TotalDocuments)
+                {
+                    for (int i = 0; i < nameofthedocs.Count; i++)
+                    {
+                        if (item.FriendlyName == nameofthedocs[i])
+                        {
+                            item.IsVisible = true;
+                            OpenDocuments.Add(item);
+                            nameofthedocs.RemoveAt(i);
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < OpenDocuments.Count; i++)
+            {
+                OpenDocuments[i].IsVisible = true;
+            }
+        }
+
+        START:
         while (!Raylib.WindowShouldClose() && !Quit)
         {
             foreach (var doc in OpenDocuments)
@@ -72,6 +118,13 @@ internal class Program
             Raylib.EndDrawing();
         }
 
+        List<string> docNames = new();
+        foreach (var doc in OpenDocuments)
+        {
+            docNames.Add(doc.FriendlyName);
+        }
+
+        File.WriteAllText("uiworkspace.uwc", JsonConvert.SerializeObject(docNames, Formatting.None));
         rlImGui.Shutdown();
         foreach (var doc in OpenDocuments)
         {
@@ -86,7 +139,7 @@ internal class Program
         for (int i = 0; i < docs.Length; i++)
         {
             docs[i].Init();
-            OpenDocuments.Add(docs[i]);
+            TotalDocuments.Add(docs[i]);
         }
     }
 
@@ -102,7 +155,7 @@ internal class Program
             ImGui.GetIO().DisplaySize.Y - MenuBarHeight
         ));
 
-
+        
         ImGui.Begin("EditorDockspace", WndowFlags);
         ImGui.PopStyleVar(2);
 
@@ -126,9 +179,16 @@ internal class Program
 
             if (ImGui.BeginMenu("Window"))
             {
-                foreach (var doc in OpenDocuments)
+                foreach (var doc in TotalDocuments)
                 {
                     ImGui.MenuItem(doc.FriendlyName, string.Empty, ref doc.IsVisible);
+                    if (doc.IsVisible && !OpenDocuments.Contains(doc))
+                    {
+                        OpenDocuments.Add(doc);
+                    } else if (!doc.IsVisible && OpenDocuments.Contains(doc))
+                    {
+                        OpenDocuments.Remove(doc);
+                    }
                 }
 
                 ImGui.EndMenu();
@@ -138,4 +198,9 @@ internal class Program
             MenuBarHeight = ImGui.GetFrameHeight();
         }
     }
+
+    private static void SetupDefaultDockingLayout()
+    {
+    }
+
 }

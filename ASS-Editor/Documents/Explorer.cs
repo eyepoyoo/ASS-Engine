@@ -26,7 +26,7 @@ public class Explorer : Document
         {
             IsFocused = CatGui.IsFocused();
             ImGui.Text("you DONT suck");
-
+            CatGui.DrawTooltip("meow");
             CatGui.DrawDebug();
         }
 

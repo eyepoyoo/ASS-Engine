@@ -65,7 +65,12 @@ public class SceneView : Document
 
             if (ImGui.BeginPopup("BobContextMenu"))
             {
-                if (ImGui.MenuItem("Pet Bob"))
+                CatGui.AddShortcut(KeyboardKey.F5, () => {
+                    Raylib.UnloadTexture(bob);
+                    bob = Raylib.LoadTexture("assets/bob_happy.png");
+                });
+
+                if (ImGui.MenuItem("Pet Bob", "F5"))
                 {
                     Console.WriteLine("Bob is happy :)");
                     Raylib.UnloadTexture(bob);

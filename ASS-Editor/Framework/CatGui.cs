@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using Raylib_cs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,14 @@ public static class CatGui
         if (ImGui.IsItemHovered(flag))
         {
             ImGui.SetItemTooltip(tooltip);
+        }
+    }
+
+    public static void AddShortcut(KeyboardKey rlInput, Action action)
+    {
+        if (Raylib.IsKeyPressed(rlInput))
+        {
+            action();
         }
     }
 }
